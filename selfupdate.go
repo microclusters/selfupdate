@@ -15,12 +15,38 @@ MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAESgt7eIAY5+toKM36bGlQQwPg+jldCCje
 -----END ECDSA PUBLIC KEY-----
 `)
 
-func Update(appID string) error {
+func newYourBaseOpts() (equinox.Options, error) {
 	var opts equinox.Options
-	if err := opts.SetPublicKeyPEM(publicKey); err != nil {
+	err := opts.SetPublicKeyPEM(publicKey)
+	return opts, err
+}
+
+type Release struct {
+	// TODO add other items as needed.
+	Version string
+}
+
+func Check(appID string) (mustUpdate bool, release *Release, err error) {
+	opts, err := newYourBaseOpts()
+	if err != nil {
+		return false, nil, err
+	}
+	resp, err := equinox.Check(appID, opts)
+	switch {
+	case err == equinox.NotAvailableErr:
+		return false, &Release{Version: resp.ReleaseVersion}, nil
+	case err != nil:
+		return false, &Release{Version: resp.ReleaseVersion}, err
+	default:
+		return true, &Release{Version: resp.ReleaseVersion}, nil
+	}
+}
+
+func Update(appID string) error {
+	opts, err := newYourBaseOpts()
+	if err != nil {
 		return err
 	}
-
 	// check for the update
 	resp, err := equinox.Check(appID, opts)
 	switch {
