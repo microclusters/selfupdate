@@ -26,19 +26,19 @@ type Release struct {
 	Version string
 }
 
-func Check(appID string) (mustUpdate bool, release *Release, err error) {
+func Check(appID string) (mustUpdate bool, err error) {
 	opts, err := newYourBaseOpts()
 	if err != nil {
-		return false, nil, err
+		return false, err
 	}
-	resp, err := equinox.Check(appID, opts)
+	_, err = equinox.Check(appID, opts)
 	switch {
 	case err == equinox.NotAvailableErr:
-		return false, &Release{Version: resp.ReleaseVersion}, nil
+		return false, nil
 	case err != nil:
-		return false, &Release{Version: resp.ReleaseVersion}, err
+		return false, err
 	default:
-		return true, &Release{Version: resp.ReleaseVersion}, nil
+		return true, nil
 	}
 }
 
