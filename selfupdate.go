@@ -26,8 +26,10 @@ type Release struct {
 	Version string
 }
 
-func Check(appID string) (mustUpdate bool, err error) {
+func Check(appID string, channel string) (mustUpdate bool, err error) {
 	opts, err := newYourBaseOpts()
+	opts.Channel = channel
+
 	if err != nil {
 		return false, err
 	}
@@ -42,11 +44,12 @@ func Check(appID string) (mustUpdate bool, err error) {
 	}
 }
 
-func Update(appID string) error {
+func Update(appID string, channel string) error {
 	opts, err := newYourBaseOpts()
 	if err != nil {
 		return err
 	}
+	opts.Channel = channel
 	// check for the update
 	resp, err := equinox.Check(appID, opts)
 	switch {
